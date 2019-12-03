@@ -1,0 +1,24 @@
+{
+  "name": "els-addon-docs",
+  "version": "1.0.0",
+  "description": "Ember Language Server Completion Provider for Addons with Addon Docs",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lifeart/els-addon-docs.git"
+  },
+  "keywords": [
+    "els",
+    "completion",
+    "ember"
+  ],
+  "author": "Aleksandr Kanunnikov <lifeart92@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/lifeart/els-addon-docs/issues"
+  },
+  "homepage": "https://github.com/lifeart/els-addon-docs#readme"
+}
