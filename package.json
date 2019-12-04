@@ -32,6 +32,7 @@
     "jest": "^24.9.0"
   },
   "dependencies": {
+    "html-to-md": "^0.3.2",
     "node-fetch": "^2.6.0",
     "vscode-uri": "^2.1.1"
   }

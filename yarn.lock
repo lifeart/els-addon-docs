@@ -1340,6 +1340,11 @@ html-encoding-sniffer@^1.0.2:
   dependencies:
     whatwg-encoding "^1.0.1"
 
+html-to-md@^0.3.2:
+  version "0.3.2"
+  resolved "https://registry.yarnpkg.com/html-to-md/-/html-to-md-0.3.2.tgz#5454170464c873d2e17fdf8d1eb27a78224b3721"
+  integrity sha512-hUItzgqOVrWyeW5xYFoB0yRAfc7nE3aDouF07gqpyZmpicDXBqSnDcTi/vrfkbLKMHQ9JjTDgRMbk5DURpjbQA==
+
 http-signature@~1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/http-signature/-/http-signature-1.2.0.tgz#9aecd925114772f3d95b65a60abb8f7c18fbace1"

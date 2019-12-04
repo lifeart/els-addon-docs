@@ -1,11 +1,11 @@
-import fetch from 'node-fetch';
-import { isComponent, getComponentName, isComponentArgument } from './lib/ast-helpers';
-import { normalizeComponents } from './lib/normalizers';
-import { URI } from 'vscode-uri';
+const fetch = require('node-fetch');
+const { isComponent, getComponentName, isComponentArgument } = require('./lib/ast-helpers');
+const { normalizeComponents } = require('./lib/normalizers');
+const { URI } = require('vscode-uri');
 
 async function getAddonDocs(org, repo) {
     const result = await fetch(`https://${org}.github.io/${repo}/docs/${repo}.json`);
-    const data = await result.toJSON();
+    const data = await result.json();
     return data;
 }
 
@@ -14,9 +14,11 @@ async function loadCompletions(addons) {
         this implementation just draft,
         we should cache it
     */
-    const data = await Promise.all(addons.map(([org, repo])=> await getAddonDocs(org, repo)));
-    const addons = data.map((info)=>normalizeComponents(info));
-    const results = [].concat(data);
+    const mapper = async ([org, repo])=> await getAddonDocs(org, repo);
+    const queries = addons.map(mapper);
+    const data = await Promise.all(queries);
+    const addonsResults = data.map((info)=>normalizeComponents(info));
+    const results = [].concat(addonsResults);
     return Object.assign.apply({}, results);
 }
 
@@ -35,15 +37,16 @@ async function findProjectAddonsWithDocs(projectRoot) {
 }
 
 async function onComplete(root,{ results, focusPath, type }) {
+	console.log('onComplete', root);
     if (type !== 'template') {
         return results;
     }
     const projectRoot = URI.parse(root).fsPath;
-    const addons = await findProjectAddonsWithDocs(projectRoot);
-    const components = await loadCompletions(addons);
+	const addons = await findProjectAddonsWithDocs(projectRoot);
+	const components = await loadCompletions(addons);
     if (isComponent(focusPath)) {
         Object.keys(components).forEach((name) => {
-            if (!results.filter(({label})=>label === name)) {
+            if (!results.find(({label})=>label === name)) {
                 results.push({
                     label: name, 
                     detail: components[name].description,
@@ -52,12 +55,12 @@ async function onComplete(root,{ results, focusPath, type }) {
             }
         })
     } else if (isComponentArgument(focusPath)) {
-        const componentName = getComponentName(focusPath);
+		const componentName = getComponentName(focusPath);
         if (componentName in components) {
             components[componentName].arguments.forEach(arg => {
-                if (!results.filter(({label})=>label === arg.name)) {
+                if (!results.find(({label})=>label === arg.name)) {
                     results.push({
-                        label: arg.name,
+                        label: '@' + arg.name,
                         kind: 5,
                         detail: arg.description
                     });
@@ -65,7 +68,9 @@ async function onComplete(root,{ results, focusPath, type }) {
             });
         }
 
-    }
+	}
+	
+	console.log('results', results);
 
     return results;
 }
