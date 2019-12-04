@@ -15,10 +15,23 @@
     "completion",
     "ember"
   ],
+  "ember-language-server": {
+    "entry": "./index",
+    "debug": true,
+    "capabilities": {
+      "completionProvider": true
+    }
+  },
   "author": "Aleksandr Kanunnikov <lifeart92@gmail.com>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/lifeart/els-addon-docs/issues"
   },
-  "homepage": "https://github.com/lifeart/els-addon-docs#readme"
+  "homepage": "https://github.com/lifeart/els-addon-docs#readme",
+  "devDependencies": {
+    "jest": "^24.9.0"
+  },
+  "dependencies": {
+    "node-fetch": "^2.6.0"
+  }
 }
