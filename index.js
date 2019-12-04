@@ -4,6 +4,7 @@ const {
   getComponentName,
   isComponentArgument
 } = require("./lib/ast-helpers");
+const memoize = require("memoizee");
 const { normalizeComponents } = require("./lib/normalizers");
 const { URI } = require("vscode-uri");
 const { getProjectAddonsInfo } = require("./lib/dependency-collector");
@@ -99,13 +100,20 @@ function mergeLeft(to, from) {
   });
 }
 
+async function loadAddonInfo(projectRoot) {
+  const addons = await findProjectAddonsWithDocs(projectRoot);
+  const components = await loadCompletions(addons);
+  return components;
+}
+
+const addonInfo = memoize(loadAddonInfo);
+
 async function onComplete(root, { results, focusPath, type }) {
   if (type !== "template") {
     return results;
   }
   const projectRoot = URI.parse(root).fsPath;
-  const addons = await findProjectAddonsWithDocs(projectRoot);
-  const components = await loadCompletions(addons);
+  const components = await addonInfo(projectRoot);
   if (isComponent(focusPath)) {
     Object.keys(components).forEach(name => {
       const component = results.find(({ label }) => label === name);
