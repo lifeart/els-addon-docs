@@ -32,7 +32,12 @@ async function findProjectAddonsWithDocs(projectRoot) {
         I beleve we can cache it for projectRoot
     */
     return [
-        ['miguelcobain', 'ember-yeti-table']
+        ['shipshapecode', 'ember-flatpickr'],
+        ['adopted-ember-addons', 'ember-autoresize'],
+        ['adopted-ember-addons', 'ember-file-upload'],
+        ['addepar', 'ember-table'],
+        ['miguelcobain', 'ember-yeti-table'],
+        ['patricklx', 'carbon-components-ember']
     ];
 }
 
@@ -49,7 +54,8 @@ async function onComplete(root,{ results, focusPath, type }) {
             if (!results.find(({label})=>label === name)) {
                 results.push({
                     label: name, 
-                    detail: components[name].description,
+					detail: components[name].description,
+					documentation: components[name].description,
                     kind: 7
                 })
             }
@@ -62,7 +68,8 @@ async function onComplete(root,{ results, focusPath, type }) {
                     results.push({
                         label: '@' + arg.name,
                         kind: 5,
-                        detail: arg.description
+                        detail: arg.description,
+                        documentation: arg.documentation
                     });
                 }
             });
