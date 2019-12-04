@@ -3,8 +3,8 @@ const { isComponent, getComponentName, isComponentArgument } = require('./lib/as
 const { normalizeComponents } = require('./lib/normalizers');
 const { URI } = require('vscode-uri');
 
-async function getAddonDocs(org, repo) {
-    const result = await fetch(`https://${org}.github.io/${repo}/docs/${repo}.json`);
+async function getAddonDocs(packageName, demoURL) {
+    const result = await fetch(`${demoURL}/docs/${packageName}.json`);
     const data = await result.json();
     return data;
 }
@@ -26,18 +26,19 @@ async function findProjectAddonsWithDocs(projectRoot) {
     /* 
         we need to get package.json, extract all names, 
         find related folders, check for ember-addon key in package.json
-        check if addon-docs exists for such project
-        if exists - return github org name and repo name (for now)
+        check if `ember-addon.demoURL` exists for such project
+        if exists - return the project name together with the value of `ember-addon.demoURL`.
 
         I beleve we can cache it for projectRoot
     */
     return [
-        ['shipshapecode', 'ember-flatpickr'],
-        ['adopted-ember-addons', 'ember-autoresize'],
-        ['adopted-ember-addons', 'ember-file-upload'],
-        ['addepar', 'ember-table'],
-        ['miguelcobain', 'ember-yeti-table'],
-        ['patricklx', 'carbon-components-ember']
+        ['ember-flatpickr', 'https://shipshapecode.github.io/ember-flatpickr'],
+        ['ember-autoresize', 'http://tim-evans.github.io/ember-autoresize/'],
+        ['ember-file-upload', 'https://adopted-ember-addons.github.io/ember-file-upload/'],
+        ['ember-yeti-table', 'https://miguelcobain.github.io/ember-yeti-table'],
+        // addons above are missing `ember-addon.demoURL` key, should fix upstream
+        ['ember-table', 'https://opensource.addepar.com/ember-table/'],
+        ['carbon-components-ember', 'https://patricklx.github.io/carbon-components-ember/']
     ];
 }
 
