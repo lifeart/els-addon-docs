@@ -2,12 +2,14 @@ const fetch = require("node-fetch");
 const {
   isComponent,
   getComponentName,
-  isComponentArgument
+  isComponentArgument,
+  isScopedPathExpression
 } = require("./lib/ast-helpers");
 const memoize = require("memoizee");
 const { normalizeComponents } = require("./lib/normalizers");
 const { URI } = require("vscode-uri");
 const { getProjectAddonsInfo } = require("./lib/dependency-collector");
+const PLACEHOLDER = 'ELSCompletionDummy';
 
 async function getAddonDocs(packageName, demoURL) {
   const result = await fetch(`${demoURL}/docs/${packageName}.json`);
@@ -114,22 +116,8 @@ async function onComplete(root, { results, focusPath, type }) {
   }
   const projectRoot = URI.parse(root).fsPath;
   const components = await addonInfo(projectRoot);
-  if (isComponent(focusPath)) {
-    Object.keys(components).forEach(name => {
-      const component = results.find(({ label }) => label === name);
-      const info = {
-        label: name,
-        detail: components[name].description,
-        documentation: components[name].description,
-        kind: 7
-      };
-      if (!component) {
-        results.push(info);
-      } else {
-        mergeLeft(component, info);
-      }
-    });
-  } else if (isComponentArgument(focusPath)) {
+  const meta = focusPath.metaForType('handlebars');
+  if (isComponentArgument(focusPath)) {
     const componentName = getComponentName(focusPath);
     if (componentName in components) {
       components[componentName].arguments.forEach(arg => {
@@ -147,8 +135,86 @@ async function onComplete(root, { results, focusPath, type }) {
         }
       });
     }
-  }
+  } else {
+    const blockDefinition = meta.maybeBlockParamDefinition;
+    if (blockDefinition) {
+      if (blockDefinition.path.node.type === 'ElementNode') {
+        const componentName = blockDefinition.path.node.tag;
+        let localResult = [];
+        if (componentName in components) {
+          components[componentName].yields.forEach((el)=>{
+            if (!el.label.includes('.')) {
+              localResult.push(el);
+            }
+          })
+        }
+        if (localResult.length) {
+          results = localResult;
+        } else {
+          results = results.filter(({label})=>/^[A-z0-9]+$/.test(label));
+        }
+      }
+    } else if (isScopedPathExpression(focusPath)) {
+      meta.localScope.forEach((scopeItem)=>{
+        const originalPathPrefix = focusPath.node.original.replace(PLACEHOLDER, '') || scopeItem.name;
+        const shouldComplete = scopeItem.name.startsWith(originalPathPrefix.split('.')[0]);
+        if (shouldComplete && scopeItem.path.node.type === 'ElementNode') {
+          const componentName = scopeItem.path.node.tag;
+          if (componentName in components) {
+            components[componentName].yields.forEach((el)=>{
+              let fixedName = el.label.split('.');
+              fixedName[0] = scopeItem.name;
+              if (el.kind !== 7) {
+                results.push({
+                  label: fixedName.join('.'),
+                  kind: el.kind,
+                  detail: el.detail
+                });
+              }
+            })
+          }
+        }
+      })
+      /// 
+    } else if (isComponent(focusPath)) {
+      Object.keys(components).forEach(name => {
+        const component = results.find(({ label }) => label === name);
+        const info = {
+          label: name,
+          detail: components[name].description,
+          documentation: components[name].description,
+          kind: 7
+        };
+        if (!component) {
+          results.push(info);
+        } else {
+          mergeLeft(component, info);
+        }
+      });
 
+      meta.localScope.forEach((scopeItem)=>{
+        if (scopeItem.path.node.type === 'ElementNode') {
+          const componentName = scopeItem.path.node.tag;
+          const originalPathPrefix = focusPath.node.tag.replace(PLACEHOLDER, '') || scopeItem.name;
+          const shouldComplete = scopeItem.name.startsWith(originalPathPrefix.split('.')[0]);
+          if (shouldComplete && componentName in components) {
+            components[componentName].yields.forEach((el)=>{
+              if (el.kind === 7) {
+                let fixedName = el.label.split('.');
+                fixedName[0] = scopeItem.name;
+                results.push({
+                  label: fixedName.join('.'),
+                  kind: el.kind,
+                  description: el.description,
+                  detail: el.detail
+                });
+              }
+            })
+          }
+        }
+      })
+    } 
+  }
   return results;
 }
 
