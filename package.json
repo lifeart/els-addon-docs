@@ -29,6 +29,7 @@
   },
   "homepage": "https://github.com/lifeart/els-addon-docs#readme",
   "devDependencies": {
+    "ember-file-upload": "^2.7.1",
     "ember-yeti-table": "^1.0.1",
     "jest": "^24.9.0"
   },

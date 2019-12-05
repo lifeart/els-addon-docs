@@ -143,13 +143,16 @@ async function onComplete(root, { results, focusPath, type }) {
         let localResult = [];
         if (componentName in components) {
           components[componentName].yields.forEach((el)=>{
-            if (!el.label.includes('.')) {
+            if (!el.label.includes('.') && blockDefinition.index === el.index) {
               localResult.push(el);
             }
           })
         }
         if (localResult.length) {
           results = localResult;
+          if (results.length === 1) {
+            results[0].preselect = true;
+          }
         } else {
           results = results.filter(({label})=>/^[A-z0-9]+$/.test(label));
         }
