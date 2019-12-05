@@ -1,6 +1,20 @@
-<YetiTable as |table|>
-
+<YetiTable as |sdds|>
+        <sdds.pagination />
 </YetiTable>
-<FileDropzone as |dropzone queue|>
-        {{boo}}
+<FileDropzone as |dropzone|>
+       {{dropzone.supported}}
+</FileDropzone>
+
+<FileDropzone as |dropzone|>
+        <YetiTable as |sdds|>
+                <sdds.pagination />
+                <YetiTable as |dds|>
+                        <sdds.pagination />
+                        <dds.head/>
+                </YetiTable>
+        </YetiTable>
+        </YetiTable::Head>
+        <YetiTable::Body::Row>
+
+        </YetiTable::Body::Row>
 </FileDropzone>
