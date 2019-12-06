@@ -1,6 +1,6 @@
 {
   "name": "els-addon-docs",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Ember Language Server Completion Provider for Addons with Addon Docs",
   "main": "index.js",
   "scripts": {
