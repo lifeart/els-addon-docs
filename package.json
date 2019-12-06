@@ -17,7 +17,7 @@
   ],
   "ember-language-server": {
     "entry": "./index",
-    "debug": true,
+    "debug": false,
     "capabilities": {
       "completionProvider": true
     }
